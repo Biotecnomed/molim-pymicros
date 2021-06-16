@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, abort
 from werkzeug.exceptions import HTTPException
 from datetime import datetime
-import subprocess
+import pickle
 
 import os
 import shutil
@@ -12,21 +12,25 @@ app = Flask(__name__)
 
 map = {}
 WD = './wd'
+model = pickle.load(open('iris_decision_tree', 'rb'))
+label = ['Iris Setosa','Iris Versicolour','Iris Verginica']
 
 # Return a welcome message
 @app.route('/')
 def welcome():
-    return 'Welcome. This is (python-)microservice template to wrap models and algorithms of MolimOncoBrain project'
+    return 'Welcome. A simple Decision Tree model on Iris Dateset'
 
 # Choose a custom model/algorithm name
 @app.route('/name')
 def getName():
-    return 'Your model name'
+    return 'GINI Decision Tree on Iris Dataset'
 
 # Choose a brief description. Html tag are admitted too
 @app.route('/desc')
 def description():
-    return 'A short description of your model...'
+    return '<p> This model classify an Iris flower based on four measures: sepal length (cm), sepal width (cm), petal length (cm) and petal width (cm). ' \
+           '\n The model is based on Decision Trees (DTs) (non-parametric supervised learning)' \
+           '\n Input must be passed in the form of a json object like this: {"sepal_length": 1.0, "sepal_width": 1.0,"petal_length": 1.0,"petal_width": 1.0} </p>'
 
 # Init a new task instance
 @app.route('/init')
@@ -39,24 +43,11 @@ def init():
     return jsonify({'uuid': generated})
 
 # Load input data
-@app.route('/load/<uuid>', methods=['POST'])
+@app.route('/load/<uuid>',methods=['POST'])
 def load(uuid):
     task = retrive(uuid)
     content = request.get_json()
-    file = os.path.join(WD, uuid, 'input.json')
-    with open(file, 'w') as jsonfile:
-        json.dump(content, jsonfile, indent=4)
-    update(task)
-    return jsonify(task)
-
-# Load input resources
-@app.route('/upload/<uuid>', methods=['POST'])
-def upload_file(uuid):
-    task = retrive(uuid)
-    f = request.files['file']
-    name = request.form['name']
-    savepath = os.path.join(WD, uuid, name)
-    f.save(savepath)
+    task['input'] = content
     update(task)
     return jsonify(task)
 
@@ -72,32 +63,37 @@ def check(uuid):
 @app.route('/run/<uuid>')
 def run(uuid):
     task = retrive(uuid)
-    if task['status'] == 'READY':
-        # run
-        task['status'] = 'RUNNING'
+    if task['status'] == 'LOADED':
+        input = task['input']
+        X = [input['sepal_length'],input['sepal_width'],input['petal_length'],input['petal_width']]
+        task['status']  = 'RUNNING'
+        ris = model.predict([X])
+        task['status']  = 'DONE'
+        task['output'] = label[ris[0]]
         update(task)
     return jsonify(task)
+
 
 # Abort a task
 @app.route('/abort/<uuid>')
 def abort(uuid):
     task = retrive(uuid)
     if task['status'] == 'RUNNING':
-        # maybe get the pid first
-        # terminate external process
+        #maybe get the pid first
+        #terminate
         task['status'] = 'ABORTED'
         update(task)
     return jsonify(task)
 
 # Clean task workspace
-@app.route('/reset/<uuid>')
+@app.route('/reset/<uuid>') #clean the workspace
 def reset(uuid):
     task = retrive(uuid)
     if task['status'] == 'ABORTED':
-        path = os.path.join(WD, uuid)
+        path = os.path.join(WD,uuid)
         shutil.rmtree(path)
         os.mkdir(path)
-        task['status'] = 'ABORTED'
+        task['status']  = 'ABORTED'
         update(task)
     return jsonify(task)
 
@@ -172,7 +168,12 @@ def retrive(uuid):
 
 # Add here your custom check logic
 def checkinput(task):
-    task['status'] = 'READY'
+    input =  task['input']
+    if 'sepal_length' in input and \
+            'sepal_width' in input and \
+            'petal_length' in input and \
+            'petal_width' in input:
+        task['status'] = 'LOADED'
 
 # Just format a timestamp
 def get_timestamp():
