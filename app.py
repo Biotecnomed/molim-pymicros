@@ -2,13 +2,13 @@ from flask import Flask, jsonify, request, abort
 from werkzeug.exceptions import HTTPException
 from datetime import datetime
 import os
-import shutil
 import uuid
 import json
 from joblib import load
 
 map = {}
-WD = './wd'
+#WD = './wd'
+labels = ['CTRL','AD']
 ini_file = './predict.config'
 path_model = './MOBL_AD_test_MODEL.md'
 path_scaler_in = './MOBL_MODEL_AD_test_SCALER.scl'
@@ -79,9 +79,10 @@ def check_config(config_data):
 
 
 def initAndCreateApp():
+    global scaler, clf
     # create working dir
-    if not os.path.exists(WD):
-        os.mkdir(WD)
+#    if not os.path.exists(WD):
+#        os.mkdir(WD)
     # read the config and check data correctness
     print("Loading model and scaler...")
     scaler = load(path_scaler_in)
@@ -115,7 +116,7 @@ def description():
 @app.route('/init')
 def init():
     generated = uuid.uuid4().hex
-    os.mkdir(os.path.join(WD, generated))
+#    os.mkdir(os.path.join(WD, generated))
     created_at = get_timestamp()
     task = {"status": 'INIT', 'created_at': created_at, 'updated_at': created_at}
     map[generated] = task
@@ -147,12 +148,12 @@ def run(uuid):
     if task['status'] == 'LOADED':
         input = task['input']
         X_pred = list(input.values())
-        X_pred = [float(x) for x in X_pred]
+        X_pred = [[float(x) for x in X_pred]]
         X_pred = scaler.transform(X_pred)
         task['status'] = 'RUNNING'
         lbl = clf.predict(X_pred)  # ris = model.predict([X])
         task['status'] = 'DONE'
-        task['output'] = label[lbl[0]]
+        task['output'] = labels[lbl[0]]
         update(task)
     return jsonify(task)
 
@@ -174,9 +175,9 @@ def abort(uuid):
 def reset(uuid):
     task = retrive(uuid)
     if task['status'] == 'ABORTED':
-        path = os.path.join(WD, uuid)
-        shutil.rmtree(path)
-        os.mkdir(path)
+#        path = os.path.join(WD, uuid)
+#        shutil.rmtree(path)
+#        os.mkdir(path)
         task['status'] = 'ABORTED'
         update(task)
     return jsonify(task)
@@ -193,8 +194,8 @@ def status(uuid):
 @app.route('/remove/<uuid>')
 def remove(uuid):
     task = retrive(uuid)
-    path = os.path.join(WD, uuid)
-    shutil.rmtree(path)
+#    path = os.path.join(WD, uuid)
+#    shutil.rmtree(path)
     map.pop(uuid)
     return jsonify(task)
 
@@ -231,8 +232,8 @@ def erase():
     # command = '''rm -rf %s/* ''' % WD
     # print(command)
     # process = subprocess.Popen(command,shell=True)
-    shutil.rmtree(WD)
-    os.mkdir(WD)
+#    shutil.rmtree(WD)
+#    os.mkdir(WD)
     return ('', 200)
 
 
@@ -261,11 +262,7 @@ def retrive(uuid):
 
 # Add here your custom check logic
 def checkinput(task):
-    input = task['input']
-    if 'sepal_length' in input and \
-            'sepal_width' in input and \
-            'petal_length' in input and \
-            'petal_width' in input:
+    if "input" in task:
         task['status'] = 'LOADED'
 
 
