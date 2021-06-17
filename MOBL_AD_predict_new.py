@@ -100,7 +100,7 @@ if __name__ == "__main__":
     input = json.load(f)
 
     X_pred = list(input['UNICZFDGAD038'].values())
-    X_pred = [float(x) for x in X_pred]
+    X_pred = [[float(x) for x in X_pred]]
 
 #    if in_format=='csv':
 #        X = pd.read_csv(path_sample_in, delimiter=';', quotechar='"', skipinitialspace=True, decimal=",",
