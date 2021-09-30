@@ -9,9 +9,9 @@ from joblib import load
 map = {}
 #WD = './wd'
 labels = ['CTRL','AD']
-ini_file = './predict.config'
-path_model = './MOBL_AD_test_MODEL.md'
-path_scaler_in = './MOBL_MODEL_AD_test_SCALER.scl'
+ini_file = 'models/ver1/predict.config'
+path_model = 'models/ver1/MOBL_AD_test_MODEL.md'
+path_scaler_in = 'models/ver1/MOBL_MODEL_AD_test_SCALER.scl'
 clf = None  # the model
 scaler = None  # the scaler
 

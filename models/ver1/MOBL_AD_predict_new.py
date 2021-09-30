@@ -96,7 +96,7 @@ if __name__ == "__main__":
     in_format = config['INPUT_DATA'].get('input_format')
 
     ## workaround
-    f = open('./MOBL_AD_test_SAMPLE.json','r')
+    f = open('MOBL_AD_test_SAMPLE.json', 'r')
     input = json.load(f)
 
     X_pred = list(input['UNICZFDGAD038'].values())
