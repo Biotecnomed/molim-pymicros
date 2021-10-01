@@ -7,75 +7,14 @@ import json
 from joblib import load
 
 map = {}
-#WD = './wd'
 labels = ['CTRL','AD']
-ini_file = 'models/ver1/predict.config'
-path_model = 'models/ver1/MOBL_AD_test_MODEL.md'
-path_scaler_in = 'models/ver1/MOBL_MODEL_AD_test_SCALER.scl'
+path_model = 'models/ver2/MOBL_AD_MODEL_DIAGNOSIS_MODEL.md'
+path_scaler_in = 'models/ver2/MOBL_AD_MODEL_DIAGNOSIS_SCALER.scl'
 clf = None  # the model
 scaler = None  # the scaler
-
-def check_config(config_data):
-    available_formats = ['csv', 'json']
-    flag_ok = True
-    ## general params
-    if not 'model_file_path' in config_data['GENERAL']:
-        print('MISSING MODEL FILEPATH! ')
-        flag_ok = False
-    else:
-        if config_data['GENERAL'].get('model_file_path') is None \
-                or config_data['GENERAL'].get('model_file_path') == '':
-            print('MODEL FILEPATH NOT SPECIFIED! ')
-            flag_ok = False
-        else:
-            file = config_data['GENERAL'].get('model_file_path')
-            if not os.path.isfile(file):
-                print('WRONG MODEL FILEPATH! ')
-                flag_ok = False
-
-    if not 'scaler_file_path' in config_data['GENERAL']:
-        print('MISSING SCALER FILEPATH! ')
-        flag_ok = False
-    else:
-        if config_data['GENERAL'].get('scaler_file_path') is None \
-                or config_data['GENERAL'].get('scaler_file_path') == '':
-            print('SCALER FILEPATH NOT SPECIFIED! ')
-            flag_ok = False
-        else:
-            file = config_data['GENERAL'].get('scaler_file_path')
-            if not os.path.isfile(file):
-                print('WRONG SCALER FILEPATH! ')
-                flag_ok = False
-
-    if not 'sample_file_path' in config_data['INPUT_DATA']:
-        print('MISSING INPUT FILEPATH! ')
-        flag_ok = False
-    else:
-        if config_data['INPUT_DATA'].get('sample_file_path') is None \
-                or config_data['INPUT_DATA'].get('sample_file_path') == '':
-            print('INPUT FILEPATH NOT SPECIFIED! ')
-            flag_ok = False
-        else:
-            file = config_data['INPUT_DATA'].get('sample_file_path')
-            if not os.path.isfile(file):
-                print('WRONG INPUT FILEPATH! ')
-                flag_ok = False
-
-    if not 'input_format' in config_data['INPUT_DATA']:
-        print('MISSING INPUT FORMAT! ')
-        flag_ok = False
-    else:
-        if config_data['INPUT_DATA'].get('input_format') is None \
-                or config_data['INPUT_DATA'].get('input_format') == '':
-            print('INPUT FORMAT NOT SPECIFIED! ')
-            flag_ok = False
-        else:
-            in_format = config_data['INPUT_DATA'].get('input_format')
-            if not in_format in available_formats:
-                print('WRONG INPUT FORMAT! ')
-                flag_ok = False
-
-    return flag_ok
+fetures = [
+    'Left-Inf-Lat-Vent', 'Left-Amygdala', 'Right-Inf-Lat-Vent', 'rh_entorhinal_thickness', 'left_Lateral-nucleus',
+    'left_Basal-nucleus']  # the features list
 
 
 def initAndCreateApp():
@@ -97,7 +36,7 @@ app = initAndCreateApp()
 # Return a welcome message
 @app.route('/')
 def welcome():
-    return 'Welcome. MOLIM ALZHEIMER DEMENTIA Predictor'
+    return 'Welcome. MOLIM ALZHEIMER DEMENTIA Predictor (ver.2)'
 
 
 # Choose a custom model/algorithm name
@@ -128,7 +67,8 @@ def init():
 def load(uuid):
     task = retrive(uuid)
     content = request.get_json()
-    task['input'] = content
+    filtered_content = {k: content[k] for k in fetures}
+    task['input'] = filtered_content
     update(task)
     return jsonify(task)
 
