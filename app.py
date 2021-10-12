@@ -1,48 +1,40 @@
 from flask import Flask, jsonify, request, abort
 from werkzeug.exceptions import HTTPException
 from datetime import datetime
-import os
 import uuid
 import json
 from joblib import load
 
 map = {}
-labels = ['CTRL','AD']
-path_model = 'models/ver2/MOBL_AD_MODEL_DIAGNOSIS_MODEL.md'
-path_scaler_in = 'models/ver2/MOBL_AD_MODEL_DIAGNOSIS_SCALER.scl'
+labels = ['CTRL','AD'] # set correct labels here
+path_model = 'models/model.md' # path to the model
+path_scaler_in = 'models/scaler.scl' # path to the scaler
 clf = None  # the model
 scaler = None  # the scaler
-fetures = [
-    'Left-Inf-Lat-Vent', 'Left-Amygdala', 'Right-Inf-Lat-Vent', 'rh_entorhinal_thickness', 'left_Lateral-nucleus',
-    'left_Basal-nucleus']  # the features list
+fetures = ['f1', 'f2', 'fn']  # a features list
 
 
 def initAndCreateApp():
     global scaler, clf
-    # create working dir
-#    if not os.path.exists(WD):
-#        os.mkdir(WD)
     # read the config and check data correctness
     print("Loading model and scaler...")
     scaler = load(path_scaler_in)
     clf = load(path_model)
     return Flask(__name__)
 
-
 ### GET the APP
 app = initAndCreateApp()
-
 
 # Return a welcome message
 @app.route('/')
 def welcome():
-    return 'Welcome. MOLIM ALZHEIMER DEMENTIA Predictor (ver.2)'
+    return 'Your custom welcome message'
 
 
 # Choose a custom model/algorithm name
 @app.route('/name')
 def getName():
-    return 'MOLIM ALZHEIMER DEMENTIA Predictor'
+    return 'MOLIM Model/Algorithm Name'
 
 
 # Choose a brief description. Html tag are admitted too
@@ -55,7 +47,6 @@ def description():
 @app.route('/init')
 def init():
     generated = uuid.uuid4().hex
-#    os.mkdir(os.path.join(WD, generated))
     created_at = get_timestamp()
     task = {"status": 'INIT', 'created_at': created_at, 'updated_at': created_at}
     map[generated] = task
@@ -77,7 +68,9 @@ def load(uuid):
 @app.route('/check/<uuid>')
 def check(uuid):
     task = retrive(uuid)
-    checkinput(task)
+    if checkinput(task):
+        task['status'] = 'LOADED'
+        update(task)
     return jsonify(task)
 
 
@@ -95,6 +88,8 @@ def run(uuid):
         task['status'] = 'DONE'
         task['output'] = labels[lbl[0]]
         update(task)
+    else:
+        abort(404,"Task is not loaded");
     return jsonify(task)
 
 
@@ -103,8 +98,6 @@ def run(uuid):
 def abort(uuid):
     task = retrive(uuid)
     if task['status'] == 'RUNNING':
-        # maybe get the pid first
-        # terminate
         task['status'] = 'ABORTED'
         update(task)
     return jsonify(task)
@@ -115,15 +108,12 @@ def abort(uuid):
 def reset(uuid):
     task = retrive(uuid)
     if task['status'] == 'ABORTED':
-#        path = os.path.join(WD, uuid)
-#        shutil.rmtree(path)
-#        os.mkdir(path)
         task['status'] = 'ABORTED'
         update(task)
     return jsonify(task)
 
 
-# Get the task state[INIT,READY,RUNNING,DONE,ABORTED]
+# Get the task state[INIT,LOADED,RUNNING,DONE,ABORTED]
 @app.route('/status/<uuid>')
 def status(uuid):
     task = retrive(uuid)
@@ -169,12 +159,14 @@ def erase():
     for task in map:
         print('termino il processo con pid %s' % task)
     map.clear()
-    # command = '''rm -rf %s/* ''' % WD
-    # print(command)
-    # process = subprocess.Popen(command,shell=True)
-#    shutil.rmtree(WD)
-#    os.mkdir(WD)
     return ('', 200)
+
+@app.route('/stats')
+def statistics():
+    counter = {'TOTAL': len(map),'INIT': 0,'LOADED': 0,'RUNNING': 0, 'DONE': 0, 'ABORTED': 0}
+    for k in map.keys():
+        counter[map.get(k)['status']] += 1
+    return jsonify(counter)
 
 
 # Handle Http Exception and wrap it as json
@@ -203,7 +195,9 @@ def retrive(uuid):
 # Add here your custom check logic
 def checkinput(task):
     if "input" in task:
-        task['status'] = 'LOADED'
+        return True
+    else:
+        return False
 
 
 # Just format a timestamp
@@ -214,9 +208,6 @@ def get_timestamp():
 # Update the last access time of a task
 def update(task):
     task['updated_at'] = get_timestamp()
-
-
-
 
 
 # If we're running in stand alone mode, run the application
