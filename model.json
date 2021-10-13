@@ -1,0 +1,76 @@
+{
+  "models": {
+    "ad_mono_vs_lateral": {
+      "name": "friendly name",
+      "description": "brief model/algorithm description",
+      "version": "1.0",
+      "trained": "models/MOBL_AD_MODEL_MONO_BI_MODEL.md",
+      "scaler": "models/MOBL_AD_MODEL_MONO_BI_SCALER.scl",
+      "feature_list": "models/MOBL_AD_MODEL_MONO_BI_FEATURES.csv",
+      "labels": ["label1","label2","ecc"]
+    },
+    "ad_diagnosis": {
+      "name": "friendly name",
+      "description": "brief model/algorithm description",
+      "version": "1.0",
+      "trained": "models/MOBL_AD_MODEL_DIAGNOSIS_MODEL.md",
+      "scaler": "models/MOBL_AD_MODEL_DIAGNOSIS_SCALER.scl",
+      "feature_list": "models/MOBL_AD_MODEL_DIAGNOSIS_FEATURES.csv",
+      "labels": ["label1","label2","ecc"]
+    },
+    "ad_amy": {
+      "name": "friendly name",
+      "description": "brief model/algorithm description",
+      "version": "1.0",
+      "trained": "models/MOBL_AD_MODEL_AMY_MODEL.md",
+      "scaler": "models/MOBL_AD_MODEL_AMY_SCALER.scl",
+      "feature_list": "models/MOBL_AD_MODEL_AMY_FEATURES.csv",
+      "labels": ["label1","label2","ecc"]
+    },
+    "ob_er": {
+      "name": "friendly name",
+      "description": "brief model/algorithm description",
+      "version": "1.0",
+      "trained": "models/MOBL_OB_MODEL_ER_MODEL.md",
+      "scaler": "models/MOBL_OB_MODEL_ER_SCALER.scl",
+      "feature_list": "models/MOBL_OB_MODEL_ER_FEATURES.csv",
+      "labels": ["label1","label2","ecc"]
+    },
+    "ob_her2": {
+      "name": "friendly name",
+      "description": "brief model/algorithm description",
+      "version": "1.0",
+      "trained": "models/MOBL_OB_MODEL_HER2_MODEL.md",
+      "scaler": "models/MOBL_OB_MODEL_HER2_SCALER.scl",
+      "feature_list": "models/MOBL_OB_MODEL_HER2_FEATURES.csv",
+      "labels": ["label1","label2","ecc"]
+    },
+    "ob_ki67": {
+      "name": "friendly name",
+      "description": "brief model/algorithm description",
+      "version": "1.0",
+      "trained": "models/MOBL_OB_MODEL_KI67_MODEL.md",
+      "scaler": "models/MOBL_OB_MODEL_KI67_SCALER.scl",
+      "feature_list": "models/MOBL_OB_MODEL_KI67_FEATURES.csv",
+      "labels": ["label1","label2","ecc"]
+    },
+    "ob_pr": {
+      "name": "friendly name",
+      "description": "brief model/algorithm description",
+      "version": "1.0",
+      "trained": "models/MOBL_OB_MODEL_PR_MODEL.md",
+      "scaler": "models/MOBL_OB_MODEL_PR_SCALER.scl",
+      "feature_list": "models/MOBL_OB_MODEL_PR_FEATURES.csv",
+      "labels": ["label1","label2","ecc"]
+    },
+    "oc_lymphnodes": {
+      "name": "friendly name",
+      "description": "brief model/algorithm description",
+      "version": "1.0",
+      "trained": "models/MOBL_OC_MODEL_LYMPHNODES_MODEL.md",
+      "scaler": "models/MOBL_OC_MODEL_LYMPHNODES_SCALER.scl",
+      "feature_list": "models/MOBL_OC_MODEL_LYMPHNODES_FEATURES.csv",
+      "labels": ["label1","label2","ecc"]
+    }
+  }
+}

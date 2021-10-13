@@ -1,0 +1,14 @@
+{
+  "T2_original_shape_Flatness": "0.693465784",
+  "T2_original_glcm_Idmn": "0.988935954",
+  "T2_wavelet-LHH_glszm_ZoneEntropy": "5.92847457",
+  "T2_wavelet-LHH_gldm_LargeDependenceLowGrayLevelEmphasis": "0.051465339",
+  "T2_wavelet-LLH_glszm_SmallAreaLowGrayLevelEmphasis": "0.00133018",
+  "T2_wavelet-LLH_gldm_SmallDependenceLowGrayLevelEmphasis": "0.000834736",
+  "T2_wavelet-LLH_firstorder_Skewness": "-0.288082866",
+  "T2_log-sigma-4-0-mm-3D_glcm_Imc2": "0.956338991",
+  "T2_log-sigma-4-0-mm-3D_firstorder_Skewness": "-0.754141954",
+  "T2_log-sigma-5-0-mm-3D_glszm_SmallAreaEmphasis": "0.658578394",
+  "T2_log-sigma-5-0-mm-3D_firstorder_Skewness": "-0.730530496",
+  "ER_status_class": "1.0"
+}

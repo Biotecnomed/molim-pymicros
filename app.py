@@ -1,28 +1,58 @@
+import sys
+
 from flask import Flask, jsonify, request, abort
 from werkzeug.exceptions import HTTPException
 from datetime import datetime
 import uuid
+import logging.config
 import json
+from os import environ
 from joblib import load
 
+# configure logging
+logging.config.fileConfig('logging.conf',defaults={'logfilename': '/tmp/molim.log'})
+
+# create logger
+logger = logging.getLogger('molim')
+the_model = None
 map = {}
-labels = ['CTRL','AD'] # set correct labels here
-path_model = 'models/model.md' # path to the model
-path_scaler_in = 'models/scaler.scl' # path to the scaler
+labels = [] # labels
 clf = None  # the model
 scaler = None  # the scaler
-fetures = ['f1', 'f2', 'fn']  # a features list
-
+features = []
+config = None
 
 def initAndCreateApp():
-    global scaler, clf
-    # read the config and check data correctness
-    print("Loading model and scaler...")
-    scaler = load(path_scaler_in)
-    clf = load(path_model)
+    global config,the_model, scaler, clf
+
+    logger.debug('Loading model configuration file...')
+    with open('model.json','r') as confile:
+        config = json.load(confile)
+
+    code = environ.get("MODEL_CODE_NAME")
+    if not code:
+        logger.critical('MODEL_CODE_NAME env variable not set')
+        sys.exit(1)
+    logger.info('MODEL CODE NAME is %s', code)
+    if not code in config['models']:
+        logger.critical('No such model: %s', code)
+        sys.exit(1)
+
+    the_model = config['models'][code]
+
+    logger.debug("Loading pre-trained model from %s...", the_model['trained'])
+    clf = load(the_model['trained'])
+
+    logger.debug("Loading scaler from %s...", the_model['scaler'])
+    scaler = load(the_model['scaler'])
+
+    logger.debug("Loading feature list from %s ...", the_model['feature_list'])
+    with open(the_model['feature_list'],'r') as file:
+        for line in file:
+            features.append(line.strip())
+
     return Flask(__name__)
 
-### GET the APP
 app = initAndCreateApp()
 
 # Return a welcome message
@@ -34,13 +64,13 @@ def welcome():
 # Choose a custom model/algorithm name
 @app.route('/name')
 def getName():
-    return 'MOLIM Model/Algorithm Name'
+    return jsonify(the_model['name'])
 
 
 # Choose a brief description. Html tag are admitted too
 @app.route('/desc')
 def description():
-    return '<p> This model etc...</p>'
+    return jsonify(the_model['description'])
 
 
 # Init a new task instance
@@ -50,6 +80,7 @@ def init():
     created_at = get_timestamp()
     task = {"status": 'INIT', 'created_at': created_at, 'updated_at': created_at}
     map[generated] = task
+    logger.info('Init new task with uuid %s',generated)
     return jsonify({'uuid': generated})
 
 
@@ -58,9 +89,10 @@ def init():
 def load(uuid):
     task = retrive(uuid)
     content = request.get_json()
-    filtered_content = {k: content[k] for k in fetures}
+    filtered_content = {k: content[k] if k in content else None for k in features}
     task['input'] = filtered_content
     update(task)
+    logger.info('Loaded input on task %s',uuid)
     return jsonify(task)
 
 
@@ -68,9 +100,13 @@ def load(uuid):
 @app.route('/check/<uuid>')
 def check(uuid):
     task = retrive(uuid)
-    if checkinput(task):
+    if checkinput(uuid,task):
         task['status'] = 'LOADED'
         update(task)
+        logger.info('Task %s move to LOADED',uuid)
+    else:
+        logger.warning('Task %s cannot move to LOADED',uuid)
+        abort(404,'Missing input in task {}'.format(uuid))
     return jsonify(task)
 
 
@@ -84,22 +120,29 @@ def run(uuid):
         X_pred = [[float(x) for x in X_pred]]
         X_pred = scaler.transform(X_pred)
         task['status'] = 'RUNNING'
+        logger.info('Task %s is running',uuid)
         lbl = clf.predict(X_pred)  # ris = model.predict([X])
         task['status'] = 'DONE'
-        task['output'] = labels[lbl[0]]
+        logger.info('Task %s is completed',uuid)
+        task['output'] = str(lbl[0])
         update(task)
     else:
-        abort(404,"Task is not loaded");
+        logger.warning('Task %s is not ready to run',uuid)
+        abort(404,"Task is not loaded")
     return jsonify(task)
 
 
 # Abort a task
 @app.route('/abort/<uuid>')
-def abort(uuid):
+def abortTask(uuid):
     task = retrive(uuid)
     if task['status'] == 'RUNNING':
         task['status'] = 'ABORTED'
         update(task)
+        logger.info('Task %s move to ABORTED',uuid)
+    else:
+        logger.warning('Task %s cannot move to ABORTED',uuid)
+        abort(404,"Cannot abort task")
     return jsonify(task)
 
 
@@ -108,8 +151,12 @@ def abort(uuid):
 def reset(uuid):
     task = retrive(uuid)
     if task['status'] == 'ABORTED':
-        task['status'] = 'ABORTED'
+        task['status'] = 'INIT'
         update(task)
+        logger.info('Task %s move to INIT',uuid)
+    else:
+        logger.warning('Task %s cannot move to INIT',uuid)
+        abort(404,"Cannot reset task")
     return jsonify(task)
 
 
@@ -124,9 +171,8 @@ def status(uuid):
 @app.route('/remove/<uuid>')
 def remove(uuid):
     task = retrive(uuid)
-#    path = os.path.join(WD, uuid)
-#    shutil.rmtree(path)
     map.pop(uuid)
+    logger.info('Task %s was removed',uuid)
     return jsonify(task)
 
 
@@ -136,6 +182,8 @@ def output(uuid):
     task = retrive(uuid)
     if task['status'] == 'DONE':
         return jsonify(task)
+    else:
+        abort(404,'Task {} not completed: no output available'.format(uuid))
 
 
 # Retrive an output resource by name
@@ -156,10 +204,9 @@ def tasklist():
 # Intended for testing purposes only
 @app.route('/taskerase')
 def erase():
-    for task in map:
-        print('termino il processo con pid %s' % task)
     map.clear()
-    return ('', 200)
+    logger.info('All tasks have been removed')
+    return ('Done', 200)
 
 @app.route('/stats')
 def statistics():
@@ -193,8 +240,13 @@ def retrive(uuid):
 
 
 # Add here your custom check logic
-def checkinput(task):
+def checkinput(uuid,task):
     if "input" in task:
+        input = task["input"]
+        for k in input:
+            if not input[k]:
+                logger.warning('Missing input %s in task %s',k,uuid)
+                return False
         return True
     else:
         return False
@@ -208,7 +260,6 @@ def get_timestamp():
 # Update the last access time of a task
 def update(task):
     task['updated_at'] = get_timestamp()
-
 
 # If we're running in stand alone mode, run the application
 # Don't forget to remove the debug flag in production
