@@ -10,7 +10,9 @@ from os import environ
 from joblib import load
 
 # configure logging
-logging.config.fileConfig('logging.conf',defaults={'logfilename': '/tmp/molim.log'})
+port = environ.get("PORT","8080")
+logfilename = '/tmp/molim_'+port+'.log'
+logging.config.fileConfig('logging.conf',defaults={'logfilename': logfilename})
 
 # create logger
 logger = logging.getLogger('molim')
