@@ -1,76 +1,84 @@
 {
   "models": {
     "ad_mono_vs_lateral": {
-      "name": "friendly name",
-      "description": "brief model/algorithm description",
+      "area": "AD",
+      "name": "AlzheimerDementia monolaterale/bilaterale",
+      "description": "Il modello ha l'obiettivo di effettuare la predizione sulla tipologia di Alzheimer dei pazienti. In particolare distingue fra AD monolaterale o bilaterale.",
       "version": "1.0",
       "trained": "models/MOBL_AD_MODEL_MONO_BI_MODEL.md",
       "scaler": "models/MOBL_AD_MODEL_MONO_BI_SCALER.scl",
       "feature_list": "models/MOBL_AD_MODEL_MONO_BI_FEATURES.csv",
-      "labels": ["label1","label2","ecc"]
+      "labels": ["","AD_MONO","AD_BI"]
     },
     "ad_diagnosis": {
-      "name": "friendly name",
-      "description": "brief model/algorithm description",
+      "area": "AD",
+      "name": "AlzheimerDementia diagnosi della patologia",
+      "description": "Il modello ha l'obiettivo di distinguere fra pazienti affetti da Alzheimer e controlli.",
       "version": "1.0",
       "trained": "models/MOBL_AD_MODEL_DIAGNOSIS_MODEL.md",
       "scaler": "models/MOBL_AD_MODEL_DIAGNOSIS_SCALER.scl",
       "feature_list": "models/MOBL_AD_MODEL_DIAGNOSIS_FEATURES.csv",
-      "labels": ["label1","label2","ecc"]
+      "labels": ["CTRL","AD"]
     },
     "ad_amy": {
-      "name": "friendly name",
-      "description": "brief model/algorithm description",
+      "area": "AD",
+      "name": "AlzheimerDementia amiloide negativo/positivo",
+      "description": "Il modello ha l'obiettivo di distinguere fra pazienti affetti da Alzheimer con accumulo di amiloide e pazienti senza accumulo di amiloide.",
       "version": "1.0",
       "trained": "models/MOBL_AD_MODEL_AMY_MODEL.md",
       "scaler": "models/MOBL_AD_MODEL_AMY_SCALER.scl",
       "feature_list": "models/MOBL_AD_MODEL_AMY_FEATURES.csv",
-      "labels": ["label1","label2","ecc"]
+      "labels": ["AMY_NEG","AMY_POS"]
     },
     "ob_er": {
-      "name": "friendly name",
-      "description": "brief model/algorithm description",
+      "area": "OB",
+      "name": "OncoBreast marker ER-/ER+",
+      "description": "Il modello ha l'obiettivo di distinguere fra pazienti con marker estrogenico ER negativo/positivo",
       "version": "1.0",
       "trained": "models/MOBL_OB_MODEL_ER_MODEL.md",
       "scaler": "models/MOBL_OB_MODEL_ER_SCALER.scl",
       "feature_list": "models/MOBL_OB_MODEL_ER_FEATURES.csv",
-      "labels": ["label1","label2","ecc"]
+      "labels": ["ER_NEG","ER_POS"]
     },
     "ob_her2": {
-      "name": "friendly name",
-      "description": "brief model/algorithm description",
+      "area": "OB",
+      "name": "OncoBreast marker HER2-/HER2+",
+      "description": "Il modello ha l'obiettivo di distinguere fra pazienti con marker gene HER2 negativo/positivo",
       "version": "1.0",
       "trained": "models/MOBL_OB_MODEL_HER2_MODEL.md",
       "scaler": "models/MOBL_OB_MODEL_HER2_SCALER.scl",
       "feature_list": "models/MOBL_OB_MODEL_HER2_FEATURES.csv",
-      "labels": ["label1","label2","ecc"]
+      "labels": ["HER2_NEG","HER2_POS"]
     },
     "ob_ki67": {
-      "name": "friendly name",
-      "description": "brief model/algorithm description",
+      "area": "OB",
+      "name": "OncoBreast marker KI67-/KI67+",
+      "description": "Il modello ha l'obiettivo di distinguere fra pazienti con marker di proliferazione KI67 negativo/positivo",
       "version": "1.0",
       "trained": "models/MOBL_OB_MODEL_KI67_MODEL.md",
       "scaler": "models/MOBL_OB_MODEL_KI67_SCALER.scl",
       "feature_list": "models/MOBL_OB_MODEL_KI67_FEATURES.csv",
-      "labels": ["label1","label2","ecc"]
+      "labels": ["KI67_NEG","KI67_POS"]
     },
     "ob_pr": {
-      "name": "friendly name",
-      "description": "brief model/algorithm description",
+      "area": "OB",
+      "name": "OncoBreast marker PR-/PR+",
+      "description": "Il modello ha l'obiettivo di distinguere fra pazienti con marker estrogenico PR negativo/positivo",
       "version": "1.0",
       "trained": "models/MOBL_OB_MODEL_PR_MODEL.md",
       "scaler": "models/MOBL_OB_MODEL_PR_SCALER.scl",
       "feature_list": "models/MOBL_OB_MODEL_PR_FEATURES.csv",
-      "labels": ["label1","label2","ecc"]
+      "labels": ["PR_NEG","PR_POS"]
     },
     "oc_lymphnodes": {
-      "name": "friendly name",
-      "description": "brief model/algorithm description",
+      "area": "OC",
+      "name": "OncoColon coinvolgimento dei linfonodi",
+      "description": "Il modello ha l'obiettivo di individuare quei pazienti con tumore al colon in cui ci sia coinvolgimento dei linfonodi",
       "version": "1.0",
       "trained": "models/MOBL_OC_MODEL_LYMPHNODES_MODEL.md",
       "scaler": "models/MOBL_OC_MODEL_LYMPHNODES_SCALER.scl",
       "feature_list": "models/MOBL_OC_MODEL_LYMPHNODES_FEATURES.csv",
-      "labels": ["label1","label2","ecc"]
+      "labels": ["LYMPH_NEG","LYMPH_POS"]
     }
   }
 }
