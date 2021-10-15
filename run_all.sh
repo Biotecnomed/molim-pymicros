@@ -30,3 +30,6 @@ sleep 1
 
 echo "Running oc_lymphnodes..."
 source startup.sh oc_lymphnodes 8087
+
+echo "Running pd_diagnosis..."
+source startup.sh pd_diagnosis 8088

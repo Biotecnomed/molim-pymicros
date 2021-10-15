@@ -10,6 +10,16 @@
       "feature_list": "models/MOBL_AD_MODEL_MONO_BI_FEATURES.csv",
       "labels": ["","AD_MONO","AD_BI"]
     },
+    "pd_diagnosis": {
+      "area": "PD",
+      "name": "Parkinson diagnosi della patologia",
+      "description": "IIl modello ha l'obiettivo di distinguere fra pazienti affetti da Parkinson e controlli.",
+      "version": "1.0",
+      "trained": "models/MOBL_PD_MODEL_DIAGNOSIS_MODEL.md",
+      "scaler": "models/MOBL_PD_MODEL_DIAGNOSIS_SCALER.scl",
+      "feature_list": "models/MOBL_PD_MODEL_DIAGNOSIS_FEATURES.csv",
+      "labels": ["CTRL","PD"]
+    },
     "ad_diagnosis": {
       "area": "AD",
       "name": "AlzheimerDementia diagnosi della patologia",

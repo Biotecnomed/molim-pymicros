@@ -30,3 +30,6 @@ sleep 1
 
 echo "Shutting down oc_lymphnodes..."
 source shutdown.sh 8087
+
+echo "Shutting down pd_diagnosis..."
+source shutdown.sh 8088
