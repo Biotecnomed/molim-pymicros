@@ -8,17 +8,19 @@
       "trained": "models/MOBL_AD_MODEL_MONO_BI_MODEL.md",
       "scaler": "models/MOBL_AD_MODEL_MONO_BI_SCALER.scl",
       "feature_list": "models/MOBL_AD_MODEL_MONO_BI_FEATURES.csv",
-      "labels": ["","AD_MONO","AD_BI"]
+      "labels": ["","AD_MONO","AD_BI"],
+      "label_descriptions": ["","Alzheimer monolaterale","Alzheimer bilaterale"]
     },
     "pd_diagnosis": {
       "area": "PD",
       "name": "Parkinson diagnosi della patologia",
-      "description": "IIl modello ha l'obiettivo di distinguere fra pazienti affetti da Parkinson e controlli.",
+      "description": "Il modello ha l'obiettivo di distinguere fra pazienti affetti da Parkinson e controlli.",
       "version": "1.0",
       "trained": "models/MOBL_PD_MODEL_DIAGNOSIS_MODEL.md",
       "scaler": "models/MOBL_PD_MODEL_DIAGNOSIS_SCALER.scl",
       "feature_list": "models/MOBL_PD_MODEL_DIAGNOSIS_FEATURES.csv",
-      "labels": ["CTRL","PD"]
+      "labels": ["CTRL","PD"],
+      "label_descriptions": ["Paziente non malato","Paziente con Parkinson"]
     },
     "ad_diagnosis": {
       "area": "AD",
@@ -28,7 +30,8 @@
       "trained": "models/MOBL_AD_MODEL_DIAGNOSIS_MODEL.md",
       "scaler": "models/MOBL_AD_MODEL_DIAGNOSIS_SCALER.scl",
       "feature_list": "models/MOBL_AD_MODEL_DIAGNOSIS_FEATURES.csv",
-      "labels": ["CTRL","AD"]
+      "labels": ["CTRL","AD"],
+      "label_descriptions": ["Paziente non malato","Paziente con Alzheimer"]
     },
     "ad_amy": {
       "area": "AD",
@@ -38,7 +41,8 @@
       "trained": "models/MOBL_AD_MODEL_AMY_MODEL.md",
       "scaler": "models/MOBL_AD_MODEL_AMY_SCALER.scl",
       "feature_list": "models/MOBL_AD_MODEL_AMY_FEATURES.csv",
-      "labels": ["AMY_NEG","AMY_POS"]
+      "labels": ["AMY_NEG","AMY_POS"],
+      "label_descriptions": ["Alzheimer amiloide-negativo","Alzheimer amiloide-positivo"]
     },
     "ob_er": {
       "area": "OB",
@@ -48,7 +52,8 @@
       "trained": "models/MOBL_OB_MODEL_ER_MODEL.md",
       "scaler": "models/MOBL_OB_MODEL_ER_SCALER.scl",
       "feature_list": "models/MOBL_OB_MODEL_ER_FEATURES.csv",
-      "labels": ["ER_NEG","ER_POS"]
+      "labels": ["ER_NEG","ER_POS"],
+      "label_descriptions": ["ER- (negativo)","ER+ (positivo)"]
     },
     "ob_her2": {
       "area": "OB",
@@ -58,7 +63,8 @@
       "trained": "models/MOBL_OB_MODEL_HER2_MODEL.md",
       "scaler": "models/MOBL_OB_MODEL_HER2_SCALER.scl",
       "feature_list": "models/MOBL_OB_MODEL_HER2_FEATURES.csv",
-      "labels": ["HER2_NEG","HER2_POS"]
+      "labels": ["HER2_NEG","HER2_POS"],
+      "label_descriptions": ["HER2- (negativo)","HER2+ (positivo)"]
     },
     "ob_ki67": {
       "area": "OB",
@@ -68,7 +74,8 @@
       "trained": "models/MOBL_OB_MODEL_KI67_MODEL.md",
       "scaler": "models/MOBL_OB_MODEL_KI67_SCALER.scl",
       "feature_list": "models/MOBL_OB_MODEL_KI67_FEATURES.csv",
-      "labels": ["KI67_NEG","KI67_POS"]
+      "labels": ["KI67_NEG","KI67_POS"],
+      "label_descriptions": ["KI67- (negativo)","KI67+ (positivo)"]
     },
     "ob_pr": {
       "area": "OB",
@@ -78,7 +85,8 @@
       "trained": "models/MOBL_OB_MODEL_PR_MODEL.md",
       "scaler": "models/MOBL_OB_MODEL_PR_SCALER.scl",
       "feature_list": "models/MOBL_OB_MODEL_PR_FEATURES.csv",
-      "labels": ["PR_NEG","PR_POS"]
+      "labels": ["PR_NEG","PR_POS"],
+      "label_descriptions": ["PR- (negativo)","PR+ (positivo)"]
     },
     "oc_lymphnodes": {
       "area": "OC",
@@ -88,7 +96,8 @@
       "trained": "models/MOBL_OC_MODEL_LYMPHNODES_MODEL.md",
       "scaler": "models/MOBL_OC_MODEL_LYMPHNODES_SCALER.scl",
       "feature_list": "models/MOBL_OC_MODEL_LYMPHNODES_FEATURES.csv",
-      "labels": ["LYMPH_NEG","LYMPH_POS"]
+      "labels": ["LYMPH_NEG","LYMPH_POS"],
+      "label_descriptions": ["Linfonodi NON coinvolti","Linfonodi coinvolti"]
     }
   }
 }

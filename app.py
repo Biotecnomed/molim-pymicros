@@ -19,13 +19,14 @@ logger = logging.getLogger('molim')
 the_model = None
 map = {}
 labels = [] # labels
+dlabels = [] # labels
 clf = None  # the model
 scaler = None  # the scaler
 features = []
 config = None
 
 def initAndCreateApp():
-    global config,the_model, scaler, clf
+    global config, the_model, scaler, clf, labels, dlabels
 
     logger.debug('Loading model configuration file...')
     with open('model.json','r') as confile:
@@ -47,6 +48,10 @@ def initAndCreateApp():
 
     logger.debug("Loading scaler from %s...", the_model['scaler'])
     scaler = load(the_model['scaler'])
+
+    logger.debug("Loading labels...")
+    labels = the_model['labels']
+    dlabels = the_model['label_descriptions']
 
     logger.debug("Loading feature list from %s ...", the_model['feature_list'])
     with open(the_model['feature_list'],'r') as file:
@@ -126,7 +131,8 @@ def run(uuid):
         lbl = clf.predict(X_pred)  # ris = model.predict([X])
         task['status'] = 'DONE'
         logger.info('Task %s is completed',uuid)
-        task['output'] = str(lbl[0])
+        task['output'] = labels[lbl[0]]
+        task['output_description'] = dlabels[lbl[0]]
         update(task)
     else:
         logger.warning('Task %s is not ready to run',uuid)
