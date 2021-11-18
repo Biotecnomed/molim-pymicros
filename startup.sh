@@ -104,8 +104,18 @@ assign_positional_args 1 "${_positionals[@]}"
 export MODEL_CODE_NAME=$_arg_code
 export PORT=$_arg_port
 
+APP=app.py
+
+if [ $MODEL_CODE_NAME == 'ob_pyradiomics' ]
+  then
+    APP=appfe.py
+fi
+
+export APP
+
+
 echo "MOLIM-PYMICROS [model: $MODEL_CODE_NAME,  port: $PORT] running as a service"
-setsid uwsgi --http 0.0.0.0:$PORT --wsgi-file app.py --callable app --processes 1 --threads 4 --safe-pidfile /tmp/uswgipid_$PORT.pid >/dev/null 2>&1 < /dev/null &
+setsid uwsgi --http 0.0.0.0:$PORT --wsgi-file $APP --callable app --processes 1 --threads 4 --safe-pidfile /tmp/uswgipid_$PORT.pid >/dev/null 2>&1 < /dev/null &
 echo "DONE"
 
 # ] <-- needed because of Argbash

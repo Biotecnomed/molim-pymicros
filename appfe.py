@@ -1,4 +1,5 @@
 import sys
+import os
 from flask import Flask, jsonify, request, abort
 from werkzeug.exceptions import HTTPException
 from datetime import datetime
@@ -6,28 +7,34 @@ import uuid
 import logging.config
 import json
 from os import environ
-from joblib import load
+from radiomics import featureextractor
 
 # configure logging
 port = environ.get("PORT","8080")
-logfilename = '/tmp/molim_'+port+'.log'
+logfilename = '/tmp/molim_fe_'+port+'.log'
 logging.config.fileConfig('logging.conf',defaults={'logfilename': logfilename})
+
+# working dir
+WD = '/tmp/wd'
+
+# the allowed img types:
+img_prefix_dict={}
+img_prefix_dict['ADC']='ADC_'
+img_prefix_dict['PC'] = 'PC_'
+img_prefix_dict['SUB'] = 'SUB_'
+img_prefix_dict['T2'] = 'T2_'
 
 # create logger
 logger = logging.getLogger('molim')
 the_model = None
 map = {}
-labels = [] # labels
-dlabels = [] # labels
-clf = None  # the model
-scaler = None  # the scaler
-features = []
+extractor = None
 config = None
 
 def initAndCreateApp():
-    global config, the_model, scaler, clf, labels, dlabels
+    global config, the_model, extractor
 
-    logger.debug('Loading model configuration file...')
+    logger.debug('Loading service configuration file...')
     with open('model.json','r') as confile:
         config = json.load(confile)
 
@@ -42,20 +49,13 @@ def initAndCreateApp():
 
     the_model = config['models'][code]
 
-    logger.debug("Loading pre-trained model from %s...", the_model['trained'])
-    clf = load(the_model['trained'])
+    # Initialize feature extractor
+    logger.debug("Loading pyradiomics configuration from %s...", the_model['pyradiomics_conf'])
+    extractor = featureextractor.RadiomicsFeatureExtractor(the_model['pyradiomics_conf'])
 
-    logger.debug("Loading scaler from %s...", the_model['scaler'])
-    scaler = load(the_model['scaler'])
-
-    logger.debug("Loading labels...")
-    labels = the_model['labels']
-    dlabels = the_model['label_descriptions']
-
-    logger.debug("Loading feature list from %s ...", the_model['feature_list'])
-    with open(the_model['feature_list'],'r') as file:
-        for line in file:
-            features.append(line.strip())
+    logger.debug("Create a working directory...")
+    if not os.path.exists(WD):
+        os.mkdir(WD)
 
     return Flask(__name__)
 
@@ -84,23 +84,29 @@ def description():
 def init():
     generated = uuid.uuid4().hex
     created_at = get_timestamp()
+    os.mkdir(os.path.join(WD,generated))
     task = {"status": 'INIT', 'created_at': created_at, 'updated_at': created_at}
     map[generated] = task
     logger.info('Init new task with uuid %s',generated)
     return jsonify({'uuid': generated})
 
 
-# Load input data
-@app.route('/load/<uuid>', methods=['POST'])
-def set(uuid):
+@app.route('/upload/<uuid>', methods=['POST'])
+def upload_file(uuid):
     task = retrive(uuid)
-    content = request.get_json()
-    filtered_content = {k: content[k] if k in content else None for k in features}
-    task['input'] = filtered_content
+    f = request.files['file']
+    name = request.form['name']
+    if name not in ['origin','roi']:
+        abort(404,'Invalid resource name')
+    if name == 'origin':
+        type = request.form['type']
+        if type not in img_prefix_dict.keys():
+            abort(404,'Invalid resource for volume type')
+        task['vtype'] = type
+    savepath = os.path.join(WD,uuid,name+'.nii.gz')
+    f.save(savepath)
     update(task)
-    logger.info('Loaded input on task %s',uuid)
     return jsonify(task)
-
 
 # Check everything is fine to run
 @app.route('/check/<uuid>')
@@ -120,19 +126,31 @@ def check(uuid):
 @app.route('/run/<uuid>')
 def run(uuid):
     task = retrive(uuid)
+    prefix = img_prefix_dict[task['vtype']]
+    output = os.path.join(WD,uuid,'output.json')
+
     if task['status'] == 'LOADED':
-        input = task['input']
-        X_pred = list(input.values())
-        X_pred = [[float(x) for x in X_pred]]
-        X_pred = scaler.transform(X_pred)
-        task['status'] = 'RUNNING'
-        logger.info('Task %s is running',uuid)
-        lbl = clf.predict(X_pred)  # ris = model.predict([X])
-        task['status'] = 'DONE'
-        logger.info('Task %s is completed',uuid)
-        task['output'] = labels[lbl[0]]
-        task['output_description'] = dlabels[lbl[0]]
-        update(task)
+        try:
+            task['status'] = 'RUNNING'
+            logger.debug('Extracting features fot task %s',task)
+            path_image_in = os.path.join(WD,uuid,'origin.nii.gz')
+            path_roi_in = os.path.join(WD,uuid,'roi.nii.gz')
+            featureVector = extractor.execute(path_image_in, path_roi_in)
+            logger.debug('Changing keys prefix...')
+            res={}
+            for df_k in featureVector.keys():
+                res[(prefix+df_k)]=str(featureVector[df_k])
+            logger.debug('Saving output to task %s working dir...',task)
+            with open(output,'w') as jsonoutput:
+                json.dump(res,jsonoutput)
+            task['status'] = 'DONE'
+            logger.info('Task %s completed',uuid)
+            update(task)
+        except Exception as err:
+            logger.error('Unexpected error while running features extraction: %s',err)
+            task['status'] = 'ABORTED'
+            update(task)
+            abort(500,'Internal server error')
     else:
         logger.warning('Task %s is not ready to run',uuid)
         abort(404,"Task is not loaded")
@@ -188,18 +206,13 @@ def remove(uuid):
 def output(uuid):
     task = retrive(uuid)
     if task['status'] == 'DONE':
-        return jsonify(task)
+        #return send_from_directory(os.path.join(WD,task),'output.json')
+        output = os.path.join(WD,uuid,'output.json')
+        with open(output,'r') as filein:
+            o = json.load(filein)
+        return jsonify(o)
     else:
         abort(404,'Task {} not completed: no output available'.format(uuid))
-
-
-# Retrive an output resource by name
-@app.route('/retrive/<uuid>/<name>')
-def retrieve(uuid, name):
-    task = retrive(uuid)
-    if task['status'] == 'DONE':
-        # fetch the correct resource
-        return ('', 200)
 
 
 # Intended for testing purposes only
@@ -248,15 +261,15 @@ def retrive(uuid):
 
 # Add here your custom check logic
 def checkinput(uuid,task):
-    if "input" in task:
-        input = task["input"]
-        for k in input:
-            if not input[k]:
-                logger.warning('Missing input %s in task %s',k,uuid)
-                return False
-        return True
-    else:
+    p1 = os.path.join(WD,uuid,'origin.nii.gz')
+    p2 = os.path.join(WD,uuid,'roi.nii.gz')
+    if not os.path.exists(p1):
+        logger.warning('Missing origin volume in task %s',uuid)
         return False
+    if not os.path.exists(p2):
+        logger.warning('Missing roi volume in task %s',uuid)
+        return False
+    return True
 
 
 # Just format a timestamp

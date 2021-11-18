@@ -33,3 +33,6 @@ source startup.sh oc_lymphnodes 8087
 
 echo "Running pd_diagnosis..."
 source startup.sh pd_diagnosis 8088
+
+echo "Running ob_pyradiomics..."
+source startup.sh ob_pyradiomics 9000

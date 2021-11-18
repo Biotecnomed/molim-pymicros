@@ -98,6 +98,13 @@
       "feature_list": "models/MOBL_OC_MODEL_LYMPHNODES_FEATURES.csv",
       "labels": ["LYMPH_NEG","LYMPH_POS"],
       "label_descriptions": ["Linfonodi NON coinvolti","Linfonodi coinvolti"]
+    },
+    "ob_pyradiomics": {
+      "area": "OB",
+      "name": "OncoBrain Features Extractor",
+      "description": "Il servizio estrae le features necessarie per l'utilizzo dei modelli nell'area OncoBrain",
+      "version": "1.0",
+      "pyradiomics_conf": "models/MOLIM_OB_pyradiomics.yml"
     }
   }
 }

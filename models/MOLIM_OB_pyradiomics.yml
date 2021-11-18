@@ -1,0 +1,60 @@
+imageType:
+  Original: {}
+  LoG:
+    sigma: [2.0, 3.0, 4.0, 5.0]
+  Wavelet: {}
+
+featureClass:
+  shape:
+  firstorder:
+  glcm:  # Disable SumAverage by specifying all other GLCM features available
+    - 'Autocorrelation'
+    - 'JointAverage'
+    - 'ClusterProminence'
+    - 'ClusterShade'
+    - 'ClusterTendency'
+    - 'Contrast'
+    - 'Correlation'
+    - 'DifferenceAverage'
+    - 'DifferenceEntropy'
+    - 'DifferenceVariance'
+    - 'JointEnergy'
+    - 'JointEntropy'
+    - 'Imc1'
+    - 'Imc2'
+    - 'Idm'
+    - 'Idmn'
+    - 'Id'
+    - 'Idn'
+    - 'InverseVariance'
+    - 'MaximumProbability'
+    - 'SumEntropy'
+    - 'SumSquares'
+  glrlm:
+  glszm:
+  gldm:
+  ngtdm:
+
+setting:
+  # Normalization:
+  normalize: true
+  normalizeScale: 100  # This allows you to use more or less the same bin width.
+
+  # Resampling:
+  interpolator: 'sitkBSpline'
+  resampledPixelSpacing: [2, 2, 2]
+  additionalInfo: false
+
+  # Mask validation:
+  # correctMask and geometryTolerance are not needed, as both image and mask are resampled, if you expect very small
+  # masks, consider to enable a size constraint by uncommenting settings below:
+  #minimumROIDimensions: 2
+  #minimumROISize: 50
+
+  # Image discretization:
+  binWidth: 5
+
+  # first order specific settings:
+  voxelArrayShift: 300
+  geometryTolerance: 0.0001
+  
