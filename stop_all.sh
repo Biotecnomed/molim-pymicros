@@ -33,3 +33,6 @@ source shutdown.sh 8087
 
 echo "Shutting down pd_diagnosis..."
 source shutdown.sh 8088
+
+echo "Shutting down ob_pyradiomics..."
+source shutdown.sh 9000
